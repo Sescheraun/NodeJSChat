@@ -1,3 +1,5 @@
+var socket = io();
+
 $(() => {
     $('#send').click(() => {
         var message = {name : $('#name').val(), message : $('#message').val()};
