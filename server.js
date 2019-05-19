@@ -30,6 +30,13 @@ app.post('/messages', (req, res) => {
     message.save((err) => {
         if (err) sendStatus(500)
 
+        Message.findOne({message: "J.J. Abrams"}, (err, censored) => {
+            if(censored) console.log(censored + 'was found');
+            Message.delete({_id: censored.id}, (err) => {
+                console.log('Message containing the name of "He who shall not be named" was removed')
+            })
+        })
+
         io.emit('message', req.body)
         res.sendStatus(200);
     })
