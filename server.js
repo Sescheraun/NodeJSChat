@@ -12,23 +12,34 @@ app.use(bodyParser.urlencoded({extended:false}));
 // TODO: learn to make this secret
 var dburl = 'mongodb+srv://user:user@cluster0-6fvf1.mongodb.net/test?retryWrites=true'
 
-var messages = [{name : "Bob", message : "Yo"},{name : "Not Bob", message : "Yoyo"}]
+var Message = mongoose.model('Message', {
+    name: String,
+    message: String
+})
 
 app.get('/messages', (req, res) => {
-    res.send(messages);
+    Message.find({}, (err, messages) =>{
+        res.send(messages);
+    })
+    
 })
 
 app.post('/messages', (req, res) => {
-    io.emit('message', req.body)
-    messages.push(req.body)
-    res.sendStatus(200);
+    var message = new Message(req.body);
+
+    message.save((err) => {
+        if (err) sendStatus(500)
+
+        io.emit('message', req.body)
+        res.sendStatus(200);
+    })
 })
 
 io.on('connection', (socket) => {
     console.log("A new user connected");
 })
 
-mongoose.connect(dburl, (err) => {
+mongoose.connect(dburl, {useNewUrlParser: true} ,(err) => {
     console.log('Mongo DB connection', err)
 })
 
